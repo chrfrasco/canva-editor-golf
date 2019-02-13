@@ -10,30 +10,30 @@ const Style = {
     switch (element.type) {
       case 'circle':
         return {
+          ...Style._position(element.attrs.x, element.attrs.y),
           width: element.attrs.radius * 2,
           height: element.attrs.radius * 2,
-          top: element.attrs.y,
-          left: element.attrs.x,
           ['background-color']: element.attrs.color,
         };
       case 'rect':
         return {
+          ...Style._position(element.attrs.x, element.attrs.y),
           width: element.attrs.width,
           height: element.attrs.height,
-          top: element.attrs.y,
-          left: element.attrs.x,
           ['background-color']: element.attrs.color,
         };
       case 'text':
         return {
+          ...Style._position(element.attrs.x, element.attrs.y),
           width: element.attrs.width,
           height: element.attrs.height,
-          top: element.attrs.y,
-          left: element.attrs.x,
         };
       default:
         throw new Error(`unrecognized element type "${element.type}"`);
     }
+  },
+  _position(x, y) {
+    return { transform: `translate(${x}px, ${y}px)` };
   },
   _toString(style) {
     return Object.entries(style).reduce(
