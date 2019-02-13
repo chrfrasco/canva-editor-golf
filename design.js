@@ -17,6 +17,13 @@ const Style = {
           left: element.attrs.x,
           ['background-color']: element.attrs.color,
         };
+      case 'text':
+        return {
+          width: element.attrs.height,
+          height: element.attrs.width,
+          top: element.attrs.y,
+          left: element.attrs.x,
+        };
       default:
         throw new Error(`unrecognized element type "${element.type}"`);
     }
@@ -51,6 +58,8 @@ const Element = {
     switch (type) {
       case 'circle':
         return Element.circle();
+      case 'text':
+        return Element.text();
       default:
         throw new Error(`unrecognized element type "${type}"`);
     }
@@ -67,15 +76,36 @@ const Element = {
       },
     };
   },
+  text() {
+    return {
+      id: Element._idGenerator.next(),
+      type: 'text',
+      attrs: {
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 40,
+        text: 'Hover over to start editing',
+      },
+    };
+  },
   render(element) {
     switch (element.type) {
-      case 'circle': {
+      case 'circle':
         return `
           <div class="element circle" style="${Style.for(element)}">
             ${ElementControls.render(element)}
           </div>
         `;
-      }
+      case 'text':
+        return `
+          <div class="element text" style="${Style.for(element)}">
+            <p>
+              ${element.attrs.text}
+            </p>
+            ${ElementControls.render(element)}
+          </div>
+        `;
       default:
         throw new Error(`unrecognized element type "${element.type}"`);
     }
@@ -93,8 +123,9 @@ const EditPanel = {
     const element = design.editing;
     switch (element.type) {
       case 'circle':
+      case 'text':
         return `<form method="GET" action="/design/${design.id}">
-          <h2>editing a circle with id ${element.id}</h2>
+          <h2>editing a ${element.type} with id ${element.id}</h2>
           <input hidden type="text" name="action_type" value="update_shape">
         <form>`;
       default:
@@ -119,6 +150,9 @@ const Design = {
       <div>
         <a href="/design/${design.id}?action_type=add_element&action_payload=${payloadify({ type: 'circle' })}">
           Create a circle
+        </a>
+        <a href="/design/${design.id}?action_type=add_element&action_payload=${payloadify({ type: 'text' })}">
+          Create a text box
         </a>
       </div>
       ${design.editing ? EditPanel.render(design) : ''}
