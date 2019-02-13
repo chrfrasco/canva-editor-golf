@@ -1,7 +1,10 @@
 {
+  "scripts": {
+    "build": "rollup -c rollup.config.js"
+  },
   "devDependencies": {
-    "@ampproject/rollup-plugin-closure-compiler": "^0.8.5",
     "nodemon": "^1.18.10",
-    "rollup": "^1.1.2"
+    "rollup": "^1.1.2",
+    "rollup-plugin-terser": "^4.0.4"
   }
 }
