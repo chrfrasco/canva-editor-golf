@@ -27,6 +27,17 @@ const Style = {
   },
 };
 
+const ElementControls = {
+  render(element) {
+    const payload = JSON.stringify({ id: element.id });
+    return `
+      <div class="element__controls">
+        <a class="element__control" href="?action_type=show_edit&action_payload=${encodeURIComponent(payload)}">Edit</a>
+      </div>
+    `;
+  },
+};
+
 const Element = {
   _idGenerator: idGenerator.new(),
   circle() {
@@ -44,7 +55,11 @@ const Element = {
   render(element) {
     switch (element.type) {
       case 'circle': {
-        return `<div class="element circle" style="${Style.for(element)}"></div>`;
+        return `
+          <div class="element circle" style="${Style.for(element)}">
+            ${ElementControls.render(element)}
+          </div>
+        `;
       }
       default:
         throw new Error(`unrecognized element type "${element.type}"`);
