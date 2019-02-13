@@ -1,4 +1,4 @@
-const base = require('./base');
+import base from './base';
 
 const template = body =>
   base.template({
@@ -52,4 +52,4 @@ const template = body =>
     body,
   });
 
-module.exports = { template };
+export default { template };

@@ -1,8 +1,8 @@
-const base = require('./base');
+import base from './base';
 
 const template = () =>
   base.template({
     body: '<a href="/design/new">Create a design</a>',
   });
 
-module.exports = { template };
+export default { template };

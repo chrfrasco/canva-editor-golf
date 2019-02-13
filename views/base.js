@@ -25,4 +25,4 @@ const template = ({ body = '', head = '' } = {}) => `<!DOCTYPE html>
   </body>
 </html>`;
 
-module.exports = { template };
+export default { template };

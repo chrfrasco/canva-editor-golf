@@ -1,4 +1,4 @@
-module.exports = {
+const idGenerator = {
   new() {
     let id = 0;
     return {
@@ -8,3 +8,5 @@ module.exports = {
     };
   },
 };
+
+export default idGenerator;

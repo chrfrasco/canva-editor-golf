@@ -1,7 +1,6 @@
-// @ts-check
-const server = require('./server');
-const { Design } = require('./design');
-const views = require('./views');
+import * as server from './server';
+import { Design } from './design';
+import * as views from './views/index';
 
 const app = server.create();
 

@@ -1,5 +1,5 @@
 // @ts-check
-const idGenerator = require('./id_generator');
+import idGenerator from './id_generator';
 
 const payloadify = obj => encodeURIComponent(JSON.stringify(obj));
 
@@ -181,7 +181,7 @@ const ElementAttrs = {
   },
 };
 
-const Design = {
+export const Design = {
   _idGenerator: idGenerator.new(),
   new() {
     return {
@@ -246,5 +246,3 @@ const Design = {
     }
   },
 };
-
-module.exports = { Design };

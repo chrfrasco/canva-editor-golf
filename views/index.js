@@ -1,5 +1,3 @@
-module.exports = {
-  home: require('./home'),
-  design: require('./design'),
-  notFound: require('./404'),
-};
+export { default as home } from './home';
+export { default as design } from './design';
+export { default as notFound } from './404';

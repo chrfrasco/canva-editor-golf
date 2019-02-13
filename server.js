@@ -1,5 +1,5 @@
-const http = require('http');
-const url = require('url');
+import * as http from 'http';
+import * as url from 'url';
 
 const isPromise = obj =>
   obj != null && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
@@ -41,7 +41,7 @@ const enhanceResponse = response =>
     },
   });
 
-const create = () => {
+export const create = () => {
   const handlers = {
     get: [],
     post: [],
@@ -114,5 +114,3 @@ const create = () => {
     listen,
   };
 };
-
-module.exports = { create };
