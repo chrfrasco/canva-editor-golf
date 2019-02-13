@@ -21,6 +21,14 @@ app.get('/', (request, response) => {
   response.send(views.home.template());
 });
 
+app.get('/design/new', (request, response) => {
+  const design = Design.new();
+  designs.set(design.id, design);
+
+  response.setHeader('Location', `/design/${design.id}`);
+  response.status(302).send('');
+});
+
 app.get('/design/:designId', (request, response) => {
   const { designId } = request.params;
   if (designId == null) {
@@ -38,14 +46,6 @@ app.get('/design/:designId', (request, response) => {
   } else {
     response.status(404).send(views.notFound.template());
   }
-});
-
-app.get('/design/new', (request, response) => {
-  const design = Design.new();
-  designs.set(design.id, design);
-
-  response.setHeader('Location', `/design?designId=${design.id}`);
-  response.status(302).send('');
 });
 
 app.listen(3030, () => {
