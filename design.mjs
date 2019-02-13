@@ -16,6 +16,14 @@ const Style = {
           left: element.attrs.x,
           ['background-color']: element.attrs.color,
         };
+      case 'rect':
+        return {
+          width: element.attrs.width,
+          height: element.attrs.height,
+          top: element.attrs.y,
+          left: element.attrs.x,
+          ['background-color']: element.attrs.color,
+        };
       case 'text':
         return {
           width: element.attrs.width,
@@ -57,6 +65,8 @@ const Element = {
     switch (type) {
       case 'circle':
         return Element.circle();
+      case 'rect':
+        return Element.rect();
       case 'text':
         return Element.text();
       default:
@@ -84,6 +94,19 @@ const Element = {
       },
     };
   },
+  rect() {
+    return {
+      id: Element._idGenerator.next(),
+      type: 'rect',
+      attrs: {
+        x: 0,
+        y: 0,
+        color: 'blue',
+        width: 200,
+        height: 75,
+      },
+    };
+  },
   text() {
     return {
       id: Element._idGenerator.next(),
@@ -102,6 +125,12 @@ const Element = {
       case 'circle':
         return `
           <div class="element circle" id="a${element.id}">
+            ${ElementControls.render(element)}
+          </div>
+        `;
+      case 'rect':
+        return `
+          <div class="element rect" id="a${element.id}">
             ${ElementControls.render(element)}
           </div>
         `;
@@ -161,6 +190,7 @@ const EditPanel = {
     const element = design.elements.find(el => el.id === elementId);
     switch (element.type) {
       case 'circle':
+      case 'rect':
       case 'text':
         return `<form method="GET" action="/design/${design.id}">
           <h2>editing a ${element.type} with id ${element.id}</h2>
@@ -237,6 +267,9 @@ export const Design = {
       <div>
         <a href="/design/${updatedDesign.id}?action_type=add_element&action_payload=${payloadify({ type: 'circle' })}">
           Create a circle
+        </a>
+        <a href="/design/${updatedDesign.id}?action_type=add_element&action_payload=${payloadify({ type: 'rect' })}">
+          Create a rectangle
         </a>
         <a href="/design/${updatedDesign.id}?action_type=add_element&action_payload=${payloadify({ type: 'text' })}">
           Create a text box
