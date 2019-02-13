@@ -6,5 +6,11 @@ export default {
     file: 'dist/index.js',
     format: 'cjs',
   },
-  plugins: [terser()],
+  plugins: [
+    terser({
+      mangle: {
+        toplevel: true,
+      },
+    }),
+  ],
 };
