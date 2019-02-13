@@ -5,7 +5,7 @@ const template = body =>
     head: `<style>
     .canvas {
       width: 750px;
-      height: 350px;
+      height: 400px;
       border: thin dotted grey;
       position: relative;
     }
