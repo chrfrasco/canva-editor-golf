@@ -21,8 +21,8 @@ app.get('/', (request, response) => {
   response.send(views.home.template());
 });
 
-app.get('/design', (request, response) => {
-  const { designId } = request.query;
+app.get('/design/:designId', (request, response) => {
+  const { designId } = request.params;
   if (designId == null) {
     response.status(302).setHeader('Location', `/design/new`);
     return;
@@ -30,6 +30,7 @@ app.get('/design', (request, response) => {
 
   if (designs.has(designId)) {
     const design = Design.update(designs.get(designId), response.locals.action);
+    designs.set(design.id, design);
     const renderedDesign = Design.render(design);
 
     response.send(views.design.template(renderedDesign));
