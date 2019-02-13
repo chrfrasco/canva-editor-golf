@@ -12,14 +12,13 @@ const parsePayload = query => {
     return JSON.parse(query.action_payload);
   }
 
-  const payload = Object.keys(query)
+  return Object.keys(query)
     .filter(key => key.startsWith('action_payload.'))
     .map(key => key.replace('action_payload.', ''))
     .reduce((acc, key) => {
       const value = query[`action_payload.${key}`];
       return { ...acc, [key]: value };
     }, {});
-  return payload;
 };
 
 app.use((request, response, next) => {
