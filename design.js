@@ -32,7 +32,16 @@ const ElementControls = {
     const payload = JSON.stringify({ id: element.id });
     return `
       <div class="element__controls">
-        <a class="element__control" href="?action_type=show_edit&action_payload=${encodeURIComponent(payload)}">Edit</a>
+        <button class="button button--block">
+          <a class="element__control" href="?action_type=show_edit&action_payload=${encodeURIComponent(
+            payload,
+          )}">Edit</a>
+        </button>
+        <button class="button button--block">
+          <a class="element__control" href="?action_type=delete_element&action_payload=${encodeURIComponent(
+            payload,
+          )}">Delete</a>
+        </button>
       </div>
     `;
   },
@@ -108,11 +117,18 @@ const Design = {
 
     switch (action.type) {
       case 'show_edit': {
-        const shape = design.elements.find(element => element.id === action.payload.id);
-        return { ...design, editing: shape };
+        const element = design.elements.find(element => element.id === action.payload.id);
+        return { ...design, editing: element };
       }
       case 'hide_edit': {
         return { ...design, editing: undefined };
+      }
+      case 'delete_element': {
+        return {
+          ...design,
+          elements: design.elements.filter(element => element.id !== action.payload.id),
+          editing: design.editing && (design.editing.id === action.payload.id ? undefined : design.editing.id),
+        };
       }
       default:
         return design;

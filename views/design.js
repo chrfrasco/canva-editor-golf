@@ -9,6 +9,16 @@ const template = body =>
       border: thin dotted grey;
       position: relative;
     }
+    .button {
+      border: none;
+      background: white;
+      border-radius: 2px;
+      color: black;
+    }
+    .button--block {
+      display: block;
+      margin: 1rem;
+    }
     .element {
       position: absolute;
     }
@@ -24,7 +34,8 @@ const template = body =>
 
       display: flex;
       justify-content: center;
-      align-items: center;  
+      align-items: center;
+      flex-direction: column;
 
       opacity: 0;
       transition: opacity 250ms ease-in-out;
