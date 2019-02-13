@@ -7,11 +7,26 @@ const app = express();
 
 const designs = new Map([['0', Design.new()]]);
 
+const parsePayload = query => {
+  if (query.action_payload) {
+    return JSON.parse(query.action_payload);
+  }
+
+  const payload = Object.keys(query)
+    .filter(key => key.startsWith('action_payload.'))
+    .map(key => key.replace('action_payload.', ''))
+    .reduce((acc, key) => {
+      const value = query[`action_payload.${key}`];
+      return { ...acc, [key]: value };
+    }, {});
+  return payload;
+};
+
 app.use((request, response, next) => {
   if (request.query.action_type != null) {
     response.locals.action = {
       type: request.query.action_type,
-      payload: request.query.action_payload ? JSON.parse(request.query.action_payload) : {},
+      payload: parsePayload(request.query),
     };
   }
   next();

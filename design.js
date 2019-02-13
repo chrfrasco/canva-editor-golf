@@ -19,8 +19,8 @@ const Style = {
         };
       case 'text':
         return {
-          width: element.attrs.height,
-          height: element.attrs.width,
+          width: element.attrs.width,
+          height: element.attrs.height,
           top: element.attrs.y,
           left: element.attrs.x,
         };
@@ -100,7 +100,7 @@ const Element = {
       case 'text':
         return `
           <div class="element text" style="${Style.for(element)}">
-            <p>
+            <p style="margin: 0;">
               ${element.attrs.text}
             </p>
             ${ElementControls.render(element)}
@@ -118,6 +118,35 @@ const Elements = {
   },
 };
 
+const AttributeControl = {
+  render(name, value) {
+    return `
+      <label class="attr__label">
+        ${name}
+        ${AttributeControl._render(name, value)}
+      </label>
+    `;
+  },
+  _render(name, value) {
+    switch (typeof value) {
+      case 'number':
+        return `<input type="number" name="action_payload.${name}" value="${value}">`;
+      case 'string':
+        return `<input type="text" name="action_payload.${name}" value="${value}">`;
+      default:
+        throw new Error(`unrecognized attribute type "${typeof value}"`);
+    }
+  },
+};
+
+const AttributeControls = {
+  render(attrs) {
+    return Object.entries(attrs)
+      .map(([name, value]) => AttributeControl.render(name, value))
+      .join('\n');
+  },
+};
+
 const EditPanel = {
   render(design) {
     const element = design.editing;
@@ -126,11 +155,28 @@ const EditPanel = {
       case 'text':
         return `<form method="GET" action="/design/${design.id}">
           <h2>editing a ${element.type} with id ${element.id}</h2>
-          <input hidden type="text" name="action_type" value="update_shape">
+          <input hidden type="text" name="action_type" value="update_element">
+          <input hidden type="text" name="action_payload.id" value="${element.id}">
+          ${AttributeControls.render(element.attrs)}
+          <button type="submit">Update</button>
         <form>`;
       default:
         throw new Error(`unrecognized element type "${element.type}"`);
     }
+  },
+};
+
+const ElementAttrs = {
+  santise(attrs) {
+    return Object.entries(attrs)
+      .map(([key, value]) => {
+        if (/^[0-9]$/.test(value) && key !== 'id') {
+          return [key, parseInt(value, 10)];
+        }
+
+        return [key, value];
+      })
+      .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
   },
 };
 
@@ -183,6 +229,18 @@ const Design = {
           ...design,
           elements: [...design.elements, Element.new(action.payload.type)],
         };
+      }
+      case 'update_element': {
+        const { id, ...rawAttrs } = action.payload;
+        const attrs = ElementAttrs.santise(rawAttrs);
+
+        const elements = design.elements.map(element =>
+          element.id === id ? { ...element, attrs: { ...element.attrs, ...attrs } } : element,
+        );
+
+        console.log(elements);
+
+        return { ...design, elements };
       }
       default:
         return design;

@@ -25,6 +25,9 @@ const template = body =>
     .circle {
       border-radius: 100%;
     }
+    .attr__label {
+      display: block;
+    }
     .element__controls {
       position: absolute;
       top: 0;
