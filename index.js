@@ -46,15 +46,16 @@ app.get('/design/new', (request, response) => {
 
 app.get('/design/:designId', (request, response) => {
   const { designId } = request.params;
-  if (designId == null) {
-    response.status(302).setHeader('Location', `/design/new`);
-    return;
-  }
 
   if (designs.has(designId)) {
     const design = Design.update(designs.get(designId), response.locals.action);
     designs.set(design.id, design);
     const renderedDesign = Design.render(design);
+
+    if (Object.keys(request.query).length !== 0) {
+      response.setHeader('Location', `/design/${design.id}`);
+      response.status(302);
+    }
 
     response.send(views.design.template(renderedDesign));
     return;
