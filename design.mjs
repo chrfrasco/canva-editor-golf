@@ -1,4 +1,3 @@
-// @ts-check
 import idGenerator from './id_generator';
 
 const payloadify = obj => encodeURIComponent(JSON.stringify(obj));
@@ -64,6 +63,15 @@ const Element = {
         throw new Error(`unrecognized element type "${type}"`);
     }
   },
+  update(element, attrs) {
+    return {
+      ...element,
+      attrs: {
+        ...element.attrs,
+        ...attrs,
+      },
+    };
+  },
   circle() {
     return {
       id: Element._idGenerator.next(),
@@ -93,13 +101,13 @@ const Element = {
     switch (element.type) {
       case 'circle':
         return `
-          <div class="element circle" style="${Style.for(element)}">
+          <div class="element circle" id="a${element.id}">
             ${ElementControls.render(element)}
           </div>
         `;
       case 'text':
         return `
-          <div class="element text" style="${Style.for(element)}">
+          <div class="element text" id="a${element.id}">
             <p style="margin: 0;">
               ${element.attrs.text}
             </p>
@@ -181,6 +189,19 @@ const ElementAttrs = {
   },
 };
 
+const UpdateAnimation = {
+  for(prevElement, nextElement) {
+    return `{
+      from {
+        ${Style.for(prevElement)}
+      }
+      to {
+        ${Style.for(nextElement)}
+      }
+    }`;
+  },
+};
+
 export const Design = {
   _idGenerator: idGenerator.new(),
   new() {
@@ -189,21 +210,41 @@ export const Design = {
       elements: [Element.circle()],
     };
   },
-  render(design) {
-    return `
+  render(design, action) {
+    const updatedDesign = Design.update(design, action);
+    const html = `
+      ${updatedDesign.elements
+        .map(element => {
+          if (action && action.type === 'update_element' && element.id === action.payload.id) {
+            const oldElement = design.elements.find(el => el.id === action.payload.id);
+            return `<style>
+              @keyframes enter ${UpdateAnimation.for(oldElement, element)}
+              #a${element.id} {
+                ${Style.for(element)};
+                animation-name: enter;
+                animation-duration: 0.5s;
+                animation-iteration-count: 1;
+              }
+            </style>`;
+          }
+
+          return `<style>#a${element.id} {${Style.for(element)}}</style>`;
+        })
+        .join('')}
       <div class="canvas">
-        ${Elements.render(design.elements)}
+        ${Elements.render(updatedDesign.elements)}
       </div>
       <div>
-        <a href="/design/${design.id}?action_type=add_element&action_payload=${payloadify({ type: 'circle' })}">
+        <a href="/design/${updatedDesign.id}?action_type=add_element&action_payload=${payloadify({ type: 'circle' })}">
           Create a circle
         </a>
-        <a href="/design/${design.id}?action_type=add_element&action_payload=${payloadify({ type: 'text' })}">
+        <a href="/design/${updatedDesign.id}?action_type=add_element&action_payload=${payloadify({ type: 'text' })}">
           Create a text box
         </a>
       </div>
-      ${design.editing ? EditPanel.render(design) : ''}
+      ${updatedDesign.editing ? EditPanel.render(updatedDesign) : ''}
     `;
+    return { html, design: updatedDesign };
   },
   update(design, action) {
     if (action == null) {
@@ -235,9 +276,7 @@ export const Design = {
         const { id, ...rawAttrs } = action.payload;
         const attrs = ElementAttrs.santise(rawAttrs);
 
-        const elements = design.elements.map(element =>
-          element.id === id ? { ...element, attrs: { ...element.attrs, ...attrs } } : element,
-        );
+        const elements = design.elements.map(element => (element.id === id ? Element.update(element, attrs) : element));
 
         return { ...design, elements };
       }

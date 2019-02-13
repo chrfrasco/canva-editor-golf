@@ -1,10 +1,14 @@
 {
   "scripts": {
-    "build": "rollup -c rollup.config.js"
+    "build": "rollup -c rollup.config.js",
+    "start": "nodemon -x 'node --experimental-modules' index.mjs"
   },
   "devDependencies": {
     "nodemon": "^1.18.10",
     "rollup": "^1.1.2",
     "rollup-plugin-terser": "^4.0.4"
+  },
+  "dependencies": {
+    "express": "^4.16.4"
   }
 }
