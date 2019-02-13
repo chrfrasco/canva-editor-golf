@@ -170,7 +170,7 @@ const ElementAttrs = {
   santise(attrs) {
     return Object.entries(attrs)
       .map(([key, value]) => {
-        if (/^[0-9]$/.test(value) && key !== 'id') {
+        if (/^[0-9]+$/.test(value) && key !== 'id') {
           return [key, parseInt(value, 10)];
         }
 
