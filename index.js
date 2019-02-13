@@ -1,9 +1,9 @@
 // @ts-check
-const express = require('express');
+const server = require('./server');
 const { Design } = require('./design');
 const views = require('./views');
 
-const app = express();
+const app = server.create();
 
 const designs = new Map([['0', Design.new()]]);
 
