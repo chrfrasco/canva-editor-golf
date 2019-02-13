@@ -1,9 +1,6 @@
 import * as http from 'http';
 import * as url from 'url';
 
-const isPromise = obj =>
-  obj != null && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
-
 const urlParamPattern = /:([a-zA-Z]+)/;
 
 const pathToRegex = path => {
@@ -62,11 +59,7 @@ export const create = () => {
           return middleware(request, response, next);
         }
 
-        const result = middleware(request, response);
-        if (isPromise(result)) {
-          return result.then(() => next()).catch(errorHandler);
-        }
-
+        middleware(request, response);
         next();
       }
 
