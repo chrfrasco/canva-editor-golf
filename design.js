@@ -149,7 +149,8 @@ const AttributeControls = {
 
 const EditPanel = {
   render(design) {
-    const element = design.editing;
+    const elementId = design.editing;
+    const element = design.elements.find(el => el.id === elementId);
     switch (element.type) {
       case 'circle':
       case 'text':
@@ -212,7 +213,7 @@ const Design = {
     switch (action.type) {
       case 'show_edit': {
         const element = design.elements.find(element => element.id === action.payload.id);
-        return { ...design, editing: element };
+        return { ...design, editing: element.id };
       }
       case 'hide_edit': {
         return { ...design, editing: undefined };
@@ -221,7 +222,7 @@ const Design = {
         return {
           ...design,
           elements: design.elements.filter(element => element.id !== action.payload.id),
-          editing: design.editing && (design.editing.id === action.payload.id ? undefined : design.editing.id),
+          editing: design.editing && (design.editing === action.payload.id ? undefined : design.editing.id),
         };
       }
       case 'add_element': {
@@ -237,8 +238,6 @@ const Design = {
         const elements = design.elements.map(element =>
           element.id === id ? { ...element, attrs: { ...element.attrs, ...attrs } } : element,
         );
-
-        console.log(elements);
 
         return { ...design, elements };
       }
