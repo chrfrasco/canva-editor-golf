@@ -1,6 +1,8 @@
 // @ts-check
 const idGenerator = require('./id_generator');
 
+const payloadify = obj => encodeURIComponent(JSON.stringify(obj));
+
 const Style = {
   for(element) {
     return Style._toString(Style._for(element));
@@ -29,18 +31,14 @@ const Style = {
 
 const ElementControls = {
   render(element) {
-    const payload = JSON.stringify({ id: element.id });
+    const payload = payloadify({ id: element.id });
     return `
       <div class="element__controls">
         <button class="button button--block">
-          <a class="element__control" href="?action_type=show_edit&action_payload=${encodeURIComponent(
-            payload,
-          )}">Edit</a>
+          <a class="element__control" href="?action_type=show_edit&action_payload=${payload}">Edit</a>
         </button>
         <button class="button button--block">
-          <a class="element__control" href="?action_type=delete_element&action_payload=${encodeURIComponent(
-            payload,
-          )}">Delete</a>
+          <a class="element__control" href="?action_type=delete_element&action_payload=${payload}">Delete</a>
         </button>
       </div>
     `;
@@ -49,6 +47,14 @@ const ElementControls = {
 
 const Element = {
   _idGenerator: idGenerator.new(),
+  new(type) {
+    switch (type) {
+      case 'circle':
+        return Element.circle();
+      default:
+        throw new Error(`unrecognized element type "${type}"`);
+    }
+  },
   circle() {
     return {
       id: Element._idGenerator.next(),
@@ -87,7 +93,10 @@ const EditPanel = {
     const element = design.editing;
     switch (element.type) {
       case 'circle':
-        return `editing a circle with id ${element.id}`;
+        return `<form method="GET" action="/design/${design.id}">
+          <h2>editing a circle with id ${element.id}</h2>
+          <input hidden type="text" name="action_type" value="update_shape">
+        <form>`;
       default:
         throw new Error(`unrecognized element type "${element.type}"`);
     }
@@ -106,6 +115,11 @@ const Design = {
     return `
       <div class="canvas">
         ${Elements.render(design.elements)}
+      </div>
+      <div>
+        <a href="/design/${design.id}?action_type=add_element&action_payload=${payloadify({ type: 'circle' })}">
+          Create a circle
+        </a>
       </div>
       ${design.editing ? EditPanel.render(design) : ''}
     `;
@@ -128,6 +142,12 @@ const Design = {
           ...design,
           elements: design.elements.filter(element => element.id !== action.payload.id),
           editing: design.editing && (design.editing.id === action.payload.id ? undefined : design.editing.id),
+        };
+      }
+      case 'add_element': {
+        return {
+          ...design,
+          elements: [...design.elements, Element.new(action.payload.type)],
         };
       }
       default:
