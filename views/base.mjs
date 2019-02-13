@@ -16,8 +16,12 @@ const template = ({ body = '', head = '' } = {}) => `<!DOCTYPE html>
         box-sizing: border-box;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
       }
+
+      input, textarea, select, button {
+        font-family: inherit;
+      }
     </style>
-    <title>Canva New Millenium</title>
+    <title>Canva SSR</title>
     ${head}
   </head>
   <body>
