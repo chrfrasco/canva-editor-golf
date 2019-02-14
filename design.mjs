@@ -71,7 +71,7 @@ const ElementControls = {
   },
 };
 
-const Element = {
+export const Element = {
   _idGenerator: idGenerator.new(),
   new(type) {
     switch (type) {
