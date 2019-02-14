@@ -1,4 +1,3 @@
-import { Design } from './design';
 import { colors } from './colors';
 
 const EOL = Buffer.from([0x0d, 0x0a]).toString();
@@ -14,18 +13,18 @@ const BEZIER_CIRCLE_RATIO = (4 / 3) * Math.tan(Math.PI / 8);
 
 const Commands = {
   // begins a new path
-  m(x, y) {
+  newPath(x, y) {
     return `${pxToPt(x)} ${pxToPt(y)} m`;
   },
   // `re` command takes "x y width height" as args and constructs a rectangular path
-  re(x, y, width, height) {
+  rectangle(x, y, width, height) {
     return `${pxToPt(x)} ${pxToPt(y)} ${pxToPt(width)} ${pxToPt(height)} re`;
   },
   rg(r, g, b) {
     return `${r} ${g} ${b} rg`;
   },
   // `f` command fills the path with the color (determined by the color space)
-  f() {
+  fill() {
     return 'f';
   },
   // append a bézier curve to the current path
@@ -46,7 +45,7 @@ const Commands = {
   //                 ˄          ˄
   //                 |          |
   //              (x1 y1)     start
-  c(x1, y1, x2, y2, x3, y3) {
+  curve(x1, y1, x2, y2, x3, y3) {
     return `${pxToPt(x1)} ${pxToPt(y1)} ${pxToPt(x2)} ${pxToPt(y2)} ${pxToPt(x3)} ${pxToPt(y3)} c`;
   },
 };
@@ -99,8 +98,8 @@ ET`;
     const { color, width, height, x, y } = element.attrs;
     return lines(
       Commands.rg(...RgColorSpace.from(color)),
-      Commands.re(x, designHeight - y - height, width, height),
-      Commands.f(),
+      Commands.rectangle(x, designHeight - y - height, width, height),
+      Commands.fill(),
     );
   },
   circle(element, designHeight) {
@@ -112,28 +111,28 @@ ET`;
     // prettier-ignore
     return lines(
       Commands.rg(...RgColorSpace.from(color)),
-      Commands.m(x + radius, y),
-      Commands.c(
+      Commands.newPath(x + radius, y),
+      Commands.curve(
         x + radius - bezRadius, y,
         x,                      y + radius - bezRadius,
         x,                      y + radius,
       ),
-      Commands.c(
+      Commands.curve(
         x,                      y + radius + bezRadius,
         x + radius - bezRadius, y + diameter,
         x + radius,             y + diameter,
       ),
-      Commands.c(
+      Commands.curve(
         x + radius + bezRadius, y + diameter,
         x + diameter,           y + radius + bezRadius,
         x + diameter,           y + radius,
       ),
-      Commands.c(
+      Commands.curve(
         x + diameter,           y + radius - bezRadius,
         x + radius + bezRadius, y,
         x + radius,             y,
       ),
-      Commands.f(),
+      Commands.fill(),
     );
   },
 };
@@ -221,5 +220,3 @@ export const Pdf = {
     );
   },
 };
-
-console.log(Pdf.from(Design.new()));
