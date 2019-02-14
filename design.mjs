@@ -10,21 +10,21 @@ const Style = {
     switch (element.type) {
       case 'circle':
         return {
-          ...Style._position(element.attrs.x, element.attrs.y),
+          ...Style._position(element.attrs.x, element.attrs.y, element.attrs.rotation),
           width: element.attrs.radius * 2,
           height: element.attrs.radius * 2,
           ['background-color']: element.attrs.color,
         };
       case 'rect':
         return {
-          ...Style._position(element.attrs.x, element.attrs.y),
+          ...Style._position(element.attrs.x, element.attrs.y, element.attrs.rotation),
           width: element.attrs.width,
           height: element.attrs.height,
           ['background-color']: element.attrs.color,
         };
       case 'text':
         return {
-          ...Style._position(element.attrs.x, element.attrs.y),
+          ...Style._position(element.attrs.x, element.attrs.y, element.attrs.rotation),
           width: element.attrs.width,
           height: element.attrs.height,
         };
@@ -32,8 +32,8 @@ const Style = {
         throw new Error(`unrecognized element type "${element.type}"`);
     }
   },
-  _position(x, y) {
-    return { transform: `translate(${x}px, ${y}px)` };
+  _position(x, y, rotation) {
+    return { transform: `translate(${x}px, ${y}px) rotate(${rotation}deg)` };
   },
   _toString(style) {
     return Object.entries(style).reduce(
@@ -82,13 +82,17 @@ const Element = {
       },
     };
   },
+  _commonAttrs: {
+    x: 0,
+    y: 0,
+    rotation: 0,
+  },
   circle() {
     return {
       id: Element._idGenerator.next(),
       type: 'circle',
       attrs: {
-        x: 0,
-        y: 0,
+        ...Element._commonAttrs,
         color: 'red',
         radius: 100,
       },
@@ -99,8 +103,7 @@ const Element = {
       id: Element._idGenerator.next(),
       type: 'rect',
       attrs: {
-        x: 0,
-        y: 0,
+        ...Element._commonAttrs,
         color: 'blue',
         width: 200,
         height: 75,
@@ -112,8 +115,7 @@ const Element = {
       id: Element._idGenerator.next(),
       type: 'text',
       attrs: {
-        x: 0,
-        y: 0,
+        ...Element._commonAttrs,
         width: 100,
         height: 40,
         text: 'Hover over to start editing',
