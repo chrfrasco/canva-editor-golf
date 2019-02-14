@@ -12,9 +12,11 @@ const FONT_SIZE_PT = pxToPt(16);
 
 const RgColorSpace = {
   from(color) {
-    let hex = colors[color];
-    if (hex == null) {
-      hex = '#000000';
+    let hex = '#000000';
+    if (RgColorSpace.digitRegex.test(color)) {
+      hex = color;
+    } else if (color in colors) {
+      hex = colors[color];
     }
 
     const [r, g, b] = RgColorSpace.fromHex(hex);
@@ -26,11 +28,11 @@ const RgColorSpace = {
       throw new Error('hex string should be length 7');
     }
 
-    const digitRegex = /#(..)(..)(..)/;
-    const [_, r, g, b] = digitRegex.exec(hex);
+    const [_, r, g, b] = RgColorSpace.digitRegex.exec(hex);
 
     return [r, g, b].map(c => parseInt(c, 16) / 0xff); // 0.0 -> 1.0
   },
+  digitRegex: /#(..)(..)(..)/,
 };
 
 const Stream = {
