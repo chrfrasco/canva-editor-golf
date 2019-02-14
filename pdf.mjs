@@ -11,11 +11,10 @@ const pxToPt = px => ~~((px * 72) / 96);
 const FONT_SIZE_PT = pxToPt(16);
 
 const RgColorSpace = {
-  _hexPattern: /^#$/,
   from(color) {
-    const hex = colors[color];
+    let hex = colors[color];
     if (hex == null) {
-      return [0, 0, 0];
+      hex = '#000000';
     }
 
     const [r, g, b] = RgColorSpace.fromHex(hex);
