@@ -3,28 +3,37 @@ import idGenerator from './id_generator';
 const payloadify = obj => encodeURIComponent(JSON.stringify(obj));
 
 const Style = {
+  toString(style) {
+    return Object.entries(style).reduce(
+      (styleString, [prop, value]) => `${styleString}${prop}: ${typeof value === 'number' ? `${value}px` : value};`,
+      '',
+    );
+  },
+};
+
+const ElementStyle = {
   for(element) {
-    return Style._toString(Style._for(element));
+    return Style.toString(ElementStyle._for(element));
   },
   _for(element) {
     switch (element.type) {
       case 'circle':
         return {
-          ...Style._position(element.attrs.x, element.attrs.y, element.attrs.rotation),
+          ...ElementStyle._position(element.attrs.x, element.attrs.y, element.attrs.rotation),
           width: element.attrs.radius * 2,
           height: element.attrs.radius * 2,
           ['background-color']: element.attrs.color,
         };
       case 'rect':
         return {
-          ...Style._position(element.attrs.x, element.attrs.y, element.attrs.rotation),
+          ...ElementStyle._position(element.attrs.x, element.attrs.y, element.attrs.rotation),
           width: element.attrs.width,
           height: element.attrs.height,
           ['background-color']: element.attrs.color,
         };
       case 'text':
         return {
-          ...Style._position(element.attrs.x, element.attrs.y, element.attrs.rotation),
+          ...ElementStyle._position(element.attrs.x, element.attrs.y, element.attrs.rotation),
           width: element.attrs.width,
           height: element.attrs.height,
         };
@@ -35,11 +44,14 @@ const Style = {
   _position(x, y, rotation) {
     return { transform: `translate(${x}px, ${y}px) rotate(${rotation}deg)` };
   },
-  _toString(style) {
-    return Object.entries(style).reduce(
-      (styleString, [prop, value]) => `${styleString}${prop}: ${typeof value === 'number' ? `${value}px` : value};`,
-      '',
-    );
+};
+
+const CanvasStyle = {
+  for(design) {
+    return Style.toString({
+      width: design.dimensions.width,
+      height: design.dimensions.height,
+    });
   },
 };
 
@@ -225,10 +237,10 @@ const UpdateAnimation = {
   for(prevElement, nextElement) {
     return `{
       from {
-        ${Style.for(prevElement)}
+        ${ElementStyle.for(prevElement)}
       }
       to {
-        ${Style.for(nextElement)}
+        ${ElementStyle.for(nextElement)}
       }
     }`;
   },
@@ -239,6 +251,7 @@ export const Design = {
   new() {
     return {
       id: Design._idGenerator.next(),
+      dimensions: { width: 750, height: 400 },
       elements: [Element.circle()],
     };
   },
@@ -252,7 +265,7 @@ export const Design = {
             return `<style>
               @keyframes enter ${UpdateAnimation.for(oldElement, element)}
               #a${element.id} {
-                ${Style.for(element)};
+                ${ElementStyle.for(element)};
                 animation-name: enter;
                 animation-duration: 0.5s;
                 animation-iteration-count: 1;
@@ -260,9 +273,10 @@ export const Design = {
             </style>`;
           }
 
-          return `<style>#a${element.id} {${Style.for(element)}}</style>`;
+          return `<style>#a${element.id} {${ElementStyle.for(element)}}</style>`;
         })
         .join('')}
+      <style>.canvas { ${CanvasStyle.for(design)} }</style>
       <div class="canvas">
         ${Elements.render(updatedDesign.elements)}
       </div>

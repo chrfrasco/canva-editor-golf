@@ -4,10 +4,9 @@ const template = body =>
   base.template({
     head: `<style>
     .canvas {
-      width: 750px;
-      height: 400px;
       border: thin dotted grey;
       position: relative;
+      overflow: hidden;
     }
     .button {
       border: none;
