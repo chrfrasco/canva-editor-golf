@@ -290,6 +290,9 @@ export const Design = {
         <a href="/design/${updatedDesign.id}?action_type=add_element&action_payload=${payloadify({ type: 'text' })}">
           Create a text box
         </a>
+        <a href="/design/${updatedDesign.id}/pdf">
+          Download PDF
+        </a>
       </div>
       ${updatedDesign.editing ? EditPanel.render(updatedDesign) : ''}
     `;
