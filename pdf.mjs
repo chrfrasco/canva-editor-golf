@@ -1,4 +1,4 @@
-import { Element } from './design';
+import { Design } from './design';
 import { colors } from './colors';
 
 const EOL = Buffer.from([0x0d, 0x0a]).toString();
@@ -6,9 +6,50 @@ const lines = (...text) => text.join(EOL) + EOL;
 
 const HIGH_BIT_CHARS = Buffer.from([0xc2, 0xa5, 0xc2, 0xb1, 0xc3, 0xab]).toString();
 
-const pxToPt = px => ~~((px * 72) / 96);
+const pxToPt = px => (px * 72) / 96;
 
 const FONT_SIZE_PT = pxToPt(16);
+
+const BEZIER_CIRCLE_RATIO = (4 / 3) * Math.tan(Math.PI / 8);
+
+const Commands = {
+  // begins a new path
+  m(x, y) {
+    return `${pxToPt(x)} ${pxToPt(y)} m`;
+  },
+  // `re` command takes "x y width height" as args and constructs a rectangular path
+  re(x, y, width, height) {
+    return `${pxToPt(x)} ${pxToPt(y)} ${pxToPt(width)} ${pxToPt(height)} re`;
+  },
+  rg(r, g, b) {
+    return `${r} ${g} ${b} rg`;
+  },
+  // `f` command fills the path with the color (determined by the color space)
+  f() {
+    return 'f';
+  },
+  // append a bézier curve to the current path
+  // extends from the current point to (x3, y3), using (x1, y1) and (x2, y2) as the control points
+  //
+  //                      , - ~ ~ ~ - ,
+  //                  , '               ' ,
+  //                ,                       ,
+  //               ,                         ,
+  //              ,                           ,
+  // (x3, y3) -> ⌾,             🌝             ,
+  //             |,                           ,
+  //             | ,                         ,
+  //             |  ,                       ,
+  //             |    ,                  , '
+  // (x2, y2) -> ⌾      ' - , _ _ _ ,  '
+  //                 ⌾----------⌾
+  //                 ˄          ˄
+  //                 |          |
+  //              (x1 y1)     start
+  c(x1, y1, x2, y2, x3, y3) {
+    return `${pxToPt(x1)} ${pxToPt(y1)} ${pxToPt(x2)} ${pxToPt(y2)} ${pxToPt(x3)} ${pxToPt(y3)} c`;
+  },
+};
 
 const RgColorSpace = {
   from(color) {
@@ -19,9 +60,7 @@ const RgColorSpace = {
       hex = colors[color];
     }
 
-    const [r, g, b] = RgColorSpace.fromHex(hex);
-    // `rg` command sets the color space to r,g,b
-    return `${r} ${g} ${b} rg`;
+    return RgColorSpace.fromHex(hex);
   },
   fromHex(hex) {
     if (hex.length !== 7) {
@@ -32,7 +71,7 @@ const RgColorSpace = {
 
     return [r, g, b].map(c => parseInt(c, 16) / 0xff); // 0.0 -> 1.0
   },
-  digitRegex: /#(..)(..)(..)/,
+  digitRegex: /^#([a-z0-9]{2})([a-z0-9]{2})([a-z0-9]{2})$/,
 };
 
 const Stream = {
@@ -42,6 +81,8 @@ const Stream = {
         return Stream.text(element, designHeight);
       case 'rect':
         return Stream.rect(element, designHeight);
+      case 'circle':
+        return Stream.circle(element, designHeight);
       default:
         throw new Error(`unrecognized element type "${element.type}"`);
     }
@@ -57,11 +98,42 @@ ET`;
   rect(element, designHeight) {
     const { color, width, height, x, y } = element.attrs;
     return lines(
-      RgColorSpace.from(color),
-      // `re` command takes "x y width height" as args and constructs a rectangular path
-      `${pxToPt(x)} ${pxToPt(designHeight - y - height)} ${pxToPt(width)} ${pxToPt(height)} re`,
-      // `f` command fills the path with the color (determined by the color space)
-      'f',
+      Commands.rg(...RgColorSpace.from(color)),
+      Commands.re(x, designHeight - y - height, width, height),
+      Commands.f(),
+    );
+  },
+  circle(element, designHeight) {
+    const { color, radius, x, y: distanceFromTop } = element.attrs;
+    const diameter = radius * 2;
+    const y = designHeight - distanceFromTop - diameter;
+    const bezRadius = radius * BEZIER_CIRCLE_RATIO;
+
+    // prettier-ignore
+    return lines(
+      Commands.rg(...RgColorSpace.from(color)),
+      Commands.m(x + radius, y),
+      Commands.c(
+        x + radius - bezRadius, y,
+        x,                      y + radius - bezRadius,
+        x,                      y + radius,
+      ),
+      Commands.c(
+        x,                      y + radius + bezRadius,
+        x + radius - bezRadius, y + diameter,
+        x + radius,             y + diameter,
+      ),
+      Commands.c(
+        x + radius + bezRadius, y + diameter,
+        x + diameter,           y + radius + bezRadius,
+        x + diameter,           y + radius,
+      ),
+      Commands.c(
+        x + diameter,           y + radius - bezRadius,
+        x + radius + bezRadius, y,
+        x + radius,             y,
+      ),
+      Commands.f(),
     );
   },
 };
@@ -150,12 +222,4 @@ export const Pdf = {
   },
 };
 
-const design = {
-  dimensions: {
-    width: 750,
-    height: 400,
-  },
-  elements: [Element.new('rect'), Element.new('text')],
-};
-
-console.log(Pdf.from(design));
+console.log(Pdf.from(Design.new()));
