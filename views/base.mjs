@@ -14,7 +14,7 @@ const template = ({ body = '', head = '' } = {}) => `<!DOCTYPE html>
       html,
       body {
         box-sizing: border-box;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        font-family: Arial, sans-serif;
       }
 
       input, textarea, select, button {

@@ -189,7 +189,7 @@ export const Pdf = {
       '          << /F1',
       '              << /Type /Font',
       '                  /Subtype /Type1',
-      '                  /BaseFont /Times-Roman', // you can have any font you want, as long as it's times new roman
+      '                  /BaseFont /ArialMT', // you can have any font you want, as long as it's arial
       '              >>',
       '          >>',
       '      >>',
