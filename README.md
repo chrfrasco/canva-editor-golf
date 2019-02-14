@@ -9,12 +9,16 @@ wc: dist/bundle.js: open: No such file or directory
 
 Wow that's small!
 
-Zero dependencies (bar the node http & url libraries) and zero javascript shipped to the user.
+**_Zero dependencies_** (bar the node http & url libraries) and zero javascript shipped to the user.
 
-## TODO
+## features
 
-- [ ] add images to canvas
-- [x] render to image (????????)
+- 😡 Add images to the canvas
+  - coming soon (???)
+  - post form data, b64 encode buffer & stick in a data url
+- ✅ Add text to the canvas
+- ✅ Drag/move elements on the canvas - no dragging tho
+- ✅ Save the canvas as an image file - save as PDF
 
 ## dev
 
@@ -30,6 +34,15 @@ $ yarn build && node dist/index.js
 
 ## check size
 
+```fish
+$ yarn build && wc -c dist/index.js
+  ...
+  14992 dist/index.js
+```
+
+or... (sans `node_modules`, `dist/` and `yarn.lock`)
+
 ```shell
-$ wc -c dist/index.js
+$ find . -type f -exec grep -Iq . {} \; -and -print | xargs cat | wc -c
+  70049
 ```
