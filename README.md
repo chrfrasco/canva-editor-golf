@@ -13,8 +13,8 @@ Zero dependencies (bar the node http & url libraries) and zero javascript shippe
 
 ## TODO
 
-[] add images to canvas
-[x] render to image (????????)
+- [ ] add images to canvas
+- [x] render to image (????????)
 
 ## dev
 
