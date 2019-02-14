@@ -11,7 +11,12 @@ Wow that's small!
 
 Zero dependencies (bar the node http & url libraries) and zero javascript shipped to the user.
 
-## def
+## TODO
+
+[] add images to canvas
+[x] render to image (????????)
+
+## dev
 
 ```shell
 $ yarn start
