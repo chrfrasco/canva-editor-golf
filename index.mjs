@@ -66,7 +66,7 @@ app.get('/design/:designId/pdf', (request, response) => {
 
     response.setHeader('Content-Type', 'application/pdf');
     response.setHeader('Content-Length', Buffer.from(pdf).length);
-    response.send(pdf);
+    response.status(200).end(pdf);
   } else {
     response.status(404).send(views.notFound.template());
   }
