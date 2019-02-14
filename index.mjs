@@ -1,5 +1,6 @@
 import * as server from './server';
 import { Design } from './design';
+import { Pdf } from './pdf';
 import * as views from './views/index';
 
 const app = server.create();
@@ -51,6 +52,21 @@ app.get('/design/:designId', (request, response) => {
 
     response.send(views.design.template(html));
     return;
+  } else {
+    response.status(404).send(views.notFound.template());
+  }
+});
+
+app.get('/design/:designId/pdf', (request, response) => {
+  const { designId } = request.params;
+
+  if (designs.has(designId)) {
+    const design = designs.get(designId);
+    const pdf = Pdf.from(design);
+
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader('Content-Length', Buffer.from(pdf).length);
+    response.send(pdf);
   } else {
     response.status(404).send(views.notFound.template());
   }
