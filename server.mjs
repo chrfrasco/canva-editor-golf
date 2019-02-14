@@ -101,7 +101,7 @@ export const create = () => {
       return this;
     },
     post(path, middleware) {
-      handlers.post.push([pathRegex(path), middleware]);
+      handlers.post.push([pathToRegex(path), middleware]);
       return this;
     },
     listen,
